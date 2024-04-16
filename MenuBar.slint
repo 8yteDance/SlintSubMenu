@@ -1,0 +1,58 @@
+import { AboutSlint, Button, VerticalBox } from "std-widgets.slint";
+component MenuBar inherits Rectangle {
+    width: 100%;
+    in-out property<[{text: string, sub-menu: [{text:string}]}]> model;
+    callback menu_clicked(string);
+    HorizontalLayout {
+        alignment: start;
+        spacing: 1px;
+
+        for m in model :Rectangle {
+            min-width: 60px;
+            min-height: 25px;
+            
+            popup := PopupWindow {
+                VerticalLayout { 
+                    for sub in m.sub-menu : Rectangle {
+                        sub_menu_touch:=TouchArea {
+                            Text {text: sub.text;}
+                            clicked => {
+                                root.menu_clicked(sub.text);
+                            }
+                        }
+                        background:sub_menu_touch.pressed?#e1e1e1 : touch.has-hover ? #f1f1f1 :  #0000;
+                        
+                    }
+                }
+                x: 0px; y: 25px; height: 100px; min-width: 60px;
+            }
+
+            
+            touch := TouchArea {
+                Text {text: m.text;}
+                clicked => {
+                    root.menu_clicked(m.text);
+                    popup.show();
+                }
+            }        
+           background: touch.pressed ? #e1e1e1 : touch.has-hover ? #f1f1f1 :  #0000;
+        
+        }
+    }
+}
+export component MenuBarTest inherits Window {
+    in-out property <string> name;
+    VerticalBox {
+        alignment: start;
+        MenuBar {
+            model: [
+                {text:"File", sub-menu:[{text:"open"}, {text:"save"}]},
+                {text:"Edit", sub-menu:[{text:"copy"}, {text:"pause"}]}
+            ];
+            menu_clicked(menu_name) => {
+                root.name=menu-name;
+            }
+        }
+        HorizontalLayout { alignment: center; Text { text: "clicked menu:"+name; font-size: 20px;} }
+    }
+}
